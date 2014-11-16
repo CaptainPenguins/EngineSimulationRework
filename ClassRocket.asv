@@ -49,7 +49,7 @@ classdef ClassRocket
             
         end
         
-        function obj = UpdatePhysicalConditions(obj, i)
+        function obj = AtmosphericCondition(obj, i)
             
             global AmbientPressureRef  % in Pa
             global TempSlope  % in K/m
@@ -61,7 +61,7 @@ classdef ClassRocket
             global TempConst  % in K
             global TempRef  % in K
             
-            % See 'atmosphericProperties.m'
+            % See atmosphericProperties.m
             obj.AmbientTemp(i) = obj.AmbientTemp(1) + TempSlope * ...
                 (obj.Altitude(1) - obj.Altitude(i));
             obj.AmbientPressure(i) = AmbientPressureRef * (1 - TempSlope ...
@@ -73,18 +73,26 @@ classdef ClassRocket
                 (obj.AmbientTemp(i) + TempConst) * (obj.AmbientTemp(i) / ...
                 TempRef) ^ 1.5;
             
+        end
+        
+        function obj = Aerodynamics(obj, i)
+            
             global DragMach
             global DragCoef
+            global GasConstR  % in (J/K/mol)
+            global MolarMass  % in (kg/mol)
             global AirSpecificHeatRatio  % unitless, Cp/Cv
             
-            % See 'Aerodynamics.m'
             obj.Mach(i) = obj.Velocity(i) / sqrt(AirSpecificHeatRatio * GasConstR ...
                 *obj.AmbientTemp(i) / MolarMass);
             obj.Reynolds(i) = obj.AirDensity(i) * obj.Veolcity(i) * obj.OuterDiam ...
                 / obj.AirViscosity(i);
             obj.DragCoef(i) = interp1(DragMach, DragCoef, obj.Mach(i));
-            obj.Drag(i) = 0.5 * obj.DragCoef(i) * obj.Velocity(i) ^ 2 * pi / 4 ...
-                * obj.OuterDiam ^ 2;
+            obj.Drag(i) = 0.5 * obj.DragCoef(i)
+            
+            
+            
+
             
         end
         

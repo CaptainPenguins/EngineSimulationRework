@@ -4,6 +4,7 @@ classdef ClassNozzle
         throatDiam;
         exitDiam;
         divergeLeng;
+        GasSpeed;
     end
     
     methods
@@ -24,6 +25,14 @@ classdef ClassNozzle
                 object.divergeLeng = data(3);
                 
             end
+        end
+        
+        function obj = Initialize(obj)
+            
+            global ExitGasMachGuess;
+            
+            obj.GasSpeed = ExitGasMachGuess;
+            
         end
     end
     

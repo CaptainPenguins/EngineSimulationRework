@@ -33,7 +33,7 @@ i = 1;
 while fuelcore.InnerDiam < engine.InnerDiam && fuelcore.Mass > 0
     
     disp('In progress')
-    rocket = rocket.UpdatePhysicalConditions(i);
+    rocket = rocket.AtmosphericCondition(i);
     
     i = i + 1;
 end

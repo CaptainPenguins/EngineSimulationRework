@@ -7,6 +7,7 @@ classdef ClassOxTank
         FillTemp;
         OxMassTotal;
         OxMassLiquid;
+        Pressure;
     end
     
     methods
@@ -31,7 +32,23 @@ classdef ClassOxTank
             end
         end
         
-        function obj = Initialize()
+        function obj = Initialize(obj)
+            
+            global psiToPa
+            global OxPressureGuess
+            global N2OTemp
+            global N2OVaporDensity
+            global N2OLiquidDensity
+            
+            obj.Pressure = OxPressureGuess * psiToPa;
+            
+            fillLiquidDensity = interp1(N2OTemp, N2OLiquidDensity, obj.FillTemp);
+            fillVaporDensity = interp1(N2OTemp, N2OVaporDensity, obj.FillTemp);
+            
+            obj.OxMassLiquid = obj.Volume * fillLiquidDensity * obj.FillFactor;
+            obj.OxMassTotal = obj.OxMassLiquid + ...
+                obj.Volume * fillVaporDensity * (1 - obj.FillFactor);
+            
         end
         
     end
