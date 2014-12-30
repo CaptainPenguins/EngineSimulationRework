@@ -49,7 +49,7 @@ classdef ClassRocket
             
         end
         
-        function obj = UpdatePhysicalConditions(obj, i)
+        function obj = Update(obj, i, engine, deltaT)
             
             global AmbientPressureRef  % in Pa
             global TempSlope  % in K/m
@@ -62,16 +62,27 @@ classdef ClassRocket
             global TempRef  % in K
             
             % See 'atmosphericProperties.m'
-            obj.AmbientTemp(i) = obj.AmbientTemp(1) + TempSlope * ...
-                (obj.Altitude(1) - obj.Altitude(i));
-            obj.AmbientPressure(i) = AmbientPressureRef * (1 - TempSlope ...
+            size(obj.AmbientTemp)
+            class(obj.AmbientTemp)
+            obj.AmbientTemp(1)
+            obj.Altitude
+            temp = obj.AmbientTemp(1,1) + TempSlope * ...
+                (obj.Altitude(1,1) - obj.Altitude(i,1));
+            obj.AmbientTemp = [obj.AmbientTemp; temp];
+            
+            temp = AmbientPressureRef * (1 - TempSlope ...
                 * obj.Altitude(i) / obj.AmbientTemp(1)) ^ (gravity * MolarMass...
                 / GasConstR / obj.Altitude(i));
-            obj.AirDensity(i) = obj.AmbientPressure(i) * MolarMass / GasConst ...
+            obj.AmbientPressure = [obj.AmbientPressure; temp];
+            
+            temp = obj.AmbientPressure(i) * MolarMass / GasConstR ...
                 / obj.AmbientTemp(i);
-            obj.AirViscosity(i) = AirViscosityRef * (TempRef + TempConst) / ...
+            obj.AirDensity = [obj.AirDensity; temp];
+            
+            temp = AirViscosityRef * (TempRef + TempConst) / ...
                 (obj.AmbientTemp(i) + TempConst) * (obj.AmbientTemp(i) / ...
                 TempRef) ^ 1.5;
+            obj.AirViscosity = [obj.AirViscosity; temp];
             
             global DragMach
             global DragCoef
@@ -80,12 +91,23 @@ classdef ClassRocket
             % See 'Aerodynamics.m'
             obj.Mach(i) = obj.Velocity(i) / sqrt(AirSpecificHeatRatio * GasConstR ...
                 *obj.AmbientTemp(i) / MolarMass);
-            obj.Reynolds(i) = obj.AirDensity(i) * obj.Veolcity(i) * obj.OuterDiam ...
+            obj.Reynolds(i) = obj.AirDensity(i) * obj.Velocity(i) * obj.OuterDiam ...
                 / obj.AirViscosity(i);
             obj.DragCoef(i) = interp1(DragMach, DragCoef, obj.Mach(i));
             obj.Drag(i) = 0.5 * obj.DragCoef(i) * obj.Velocity(i) ^ 2 * pi / 4 ...
                 * obj.OuterDiam ^ 2;
             
+            global LaunchAngle
+            
+            % See 'kinematics.m'
+            acceleration = (engine.Thrust - obj.Drag - obj.Mass) / gravity;
+            if i == 1
+                obj.Velocity = acceleration * deltaT;
+                obj.Altitude = deltaT * obj.Velocity * sin(LaunchAngle);
+            else
+                obj.Velocity(i) = obj.Velocity(i - 1) + acceleration * deltaT;
+                obj.Altitude(i) = obj.Altitude(i - 1) + deltaT * obj.Velocity(i) * sin(LaunchAngle);
+            end
         end
         
     end

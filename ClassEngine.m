@@ -6,6 +6,8 @@ classdef ClassEngine
         Temp;
         XY;
         Polar;
+        
+        Thrust;
     end
     
     methods
@@ -42,6 +44,15 @@ classdef ClassEngine
             
             obj.XY(:, 1) = obj.InnerDiam / 2 * cos(obj.Polar(:, 1));
             obj.XY(:, 2) = obj.InnerDiam / 2 * sin(obj.Polar(:, 1));
+            
+            obj.Thrust = 500;
+            
+        end
+        
+        function obj = Update(obj, fuelcore)
+            
+            obj.Thrust = 500;
+            fuelcore.RegressionRate = 0.05;
             
         end
     end

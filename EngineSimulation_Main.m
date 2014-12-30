@@ -3,6 +3,10 @@
 
 clear
 
+deltaT = 0.1;
+
+% msgbox_setup = msgbox('Setting up. Please wait.');
+
 DefineGlobalVariables
 
 % ----- Create objects ----- 
@@ -27,13 +31,18 @@ oxtank = oxtank.Initialize();
 plumbing = plumbing.Initialize();
 rocket = rocket.Initialize();
 
+% delete(msgbox_setup);
 
 % ----- Simulation -----
+% msgbox_simulation = msgbox('Running simulation now');
+figure
 i = 1;
 while fuelcore.InnerDiam < engine.InnerDiam && fuelcore.Mass > 0
     
     disp('In progress')
-    rocket = rocket.UpdatePhysicalConditions(i);
+    rocket = rocket.Update(i, engine, deltaT);
+    engine = engine.Update(fuelcore);
+    fuelcore = fuelcore.Update(deltaT);
     
     i = i + 1;
 end

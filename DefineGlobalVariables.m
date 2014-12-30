@@ -73,6 +73,9 @@ DragCoefChart = importdata('DragCoefficients.txt');
 DragMach = DragCoefChart.data(:,1); 
 DragCoef = DragCoefChart.data(:,2); 
 
+global LaunchAngle
+LaunchAngle = 85 / 360 * 2 * pi;
+
 
 
 
